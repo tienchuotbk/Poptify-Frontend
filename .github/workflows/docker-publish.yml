@@ -87,6 +87,8 @@ jobs:
             # Nếu GHCR package để PRIVATE: bỏ comment 1 dòng dưới (cần secret GHCR_PAT có scope read:packages).
             # echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u "${{ secrets.VPS_USER }}" --password-stdin
 
+            # Gỡ container trùng tên (vd tạo bằng docker run thủ công) để tránh conflict.
+            docker rm -f poptify-frontend 2>/dev/null || true
             docker compose pull
             docker compose up -d
             docker image prune -f
