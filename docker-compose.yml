@@ -14,10 +14,9 @@ services:
     restart: unless-stopped
     networks:
       - chuot_net
-    # Không publish ra host — chỉ NPM (cùng network) truy cập qua poptify-frontend:7000.
-    # Bỏ comment nếu muốn truy cập trực tiếp http://<VPS>:7000 để debug:
-    # ports:
-    #   - "7000:7000"
+    # Publish 7000 ra host → NPM forward http://<VPS-IP>:7000 (và vẫn vào được qua chuot_net).
+    ports:
+      - "7000:7000"
 
 networks:
   chuot_net:
