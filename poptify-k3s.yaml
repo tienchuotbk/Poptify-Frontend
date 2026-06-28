@@ -1,14 +1,11 @@
-# Poptify Frontend — k3s Deployment + Service + Traefik Ingress (namespace: default)
+# Poptify Frontend — k3s Deployment + Service (NodePort), namespace: default
+#
+# Kiến trúc: NPM là edge (lo domain + TLS). FE expose qua NodePort 30080;
+#            NPM forward https://poptify.chuot.io.vn -> http://<VPS-IP>:30080.
 #
 # Apply:            kubectl apply -f poptify-k3s.yaml
 # Cập nhật bản mới: kubectl rollout restart deployment/poptify-frontend
-#   (k3s KHÔNG tự redeploy khi :latest đổi — phải rollout restart; imagePullPolicy: Always để kéo bản mới)
-#
-# Domain: poptify.chuot.io.vn
-#
-# TLS hợp lệ (Shopify bắt buộc HTTPS) qua cert-manager:
-#   - Cài cert-manager + tạo ClusterIssuer tên 'letsencrypt-prod' (HTTP-01 qua Traefik).
-#   - Nếu CHƯA có cert-manager: bỏ block tls + annotation cert-manager, Traefik sẽ dùng cert tự ký (chỉ để test).
+#   (k3s KHÔNG tự redeploy khi :latest đổi; imagePullPolicy: Always để kéo bản mới khi restart)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -65,38 +62,11 @@ metadata:
   labels:
     app: poptify-frontend
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: poptify-frontend
   ports:
     - protocol: TCP
       port: 7000
       targetPort: 7000
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: poptify-frontend-ingress
-  namespace: default
-  annotations:
-    # Traefik chỉ nhận trên entrypoint HTTPS (k3s mặc định: web=80, websecure=443).
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    # TLS tự động (cần cert-manager + ClusterIssuer 'letsencrypt-prod').
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-spec:
-  ingressClassName: traefik
-  tls:
-    - hosts:
-        - poptify.chuot.io.vn
-      secretName: poptify-frontend-tls
-  rules:
-    - host: poptify.chuot.io.vn
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: poptify-frontend-service
-                port:
-                  number: 7000
+      nodePort: 30080 # NPM forward tới <VPS-IP>:30080 (cố định để config NPM ổn định)
