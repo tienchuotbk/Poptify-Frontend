@@ -1,4 +1,4 @@
-# Poptify Frontend (Admin UI)
+# Poptify Frontend (Admin UI) 
 
 Shopify **embedded admin app** (Vite + React + TypeScript + Polaris React + App Bridge v4)
 tiêu thụ REST API của Poptify Backend. Cấu hình **App Settings / Popups / Announcement Bars /
