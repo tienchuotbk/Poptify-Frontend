@@ -1,0 +1,24 @@
+# Chạy FE container và đưa vào chung network 'chuot_net' với Nginx Proxy Manager (NPM).
+# NPM forward domain -> http://poptify-frontend:7000 (nội bộ network, không cần publish ra host).
+#
+# Chuẩn bị 1 lần:
+#   docker network create chuot_net    # nếu chưa có
+#   (NPM cũng phải nằm trong network 'chuot_net')
+#
+# Deploy thủ công trên VPS:
+#   docker compose pull && docker compose up -d
+services:
+  frontend:
+    image: ghcr.io/tienchuotbk/poptify-frontend:latest
+    container_name: poptify-frontend
+    restart: unless-stopped
+    networks:
+      - chuot_net
+    # Không publish ra host — chỉ NPM (cùng network) truy cập qua poptify-frontend:7000.
+    # Bỏ comment nếu muốn truy cập trực tiếp http://<VPS>:7000 để debug:
+    # ports:
+    #   - "7000:7000"
+
+networks:
+  chuot_net:
+    external: true
