@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- App Bridge v4 PHẢI là script đầu tiên trong <head>. data-api-key inject từ VITE_SHOPIFY_API_KEY lúc build. -->
+    <script
+      src="https://cdn.shopify.com/shopifycloud/app-bridge.js"
+      data-api-key="%VITE_SHOPIFY_API_KEY%"
+    ></script>
+    <title>Poptify Admin</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
