@@ -4,7 +4,7 @@
 # Cập nhật bản mới: kubectl rollout restart deployment/poptify-frontend
 #   (k3s KHÔNG tự redeploy khi :latest đổi — phải rollout restart; imagePullPolicy: Always để kéo bản mới)
 #
-# >>> ĐỔI "app.example.com" thành domain thật của bạn (2 chỗ trong Ingress).
+# Domain: poptify.chuot.io.vn
 #
 # TLS hợp lệ (Shopify bắt buộc HTTPS) qua cert-manager:
 #   - Cài cert-manager + tạo ClusterIssuer tên 'letsencrypt-prod' (HTTP-01 qua Traefik).
@@ -87,10 +87,10 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - app.example.com # <-- ĐỔI domain thật
+        - poptify.chuot.io.vn
       secretName: poptify-frontend-tls
   rules:
-    - host: app.example.com # <-- ĐỔI domain thật
+    - host: poptify.chuot.io.vn
       http:
         paths:
           - path: /
