@@ -83,6 +83,6 @@ jobs:
             docker run -d \
               --name poptify-frontend \
               --restart unless-stopped \
-              -p 7001:7000 \
+              -p 7000:7000 \
               "$IMAGE"
             docker image prune -f
