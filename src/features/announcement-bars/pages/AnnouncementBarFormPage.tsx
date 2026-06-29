@@ -3,12 +3,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   Banner,
   BlockStack,
+  Box,
   Button,
   Card,
   Checkbox,
   ChoiceList,
   FormLayout,
+  InlineGrid,
   InlineStack,
+  Layout,
   Page,
   Select,
   SkeletonBodyText,
@@ -40,6 +43,8 @@ import {
   validateRequired,
   type FieldError,
 } from '../../../shared/validation/widget-validators';
+import { BarPreview } from '../components/BarPreview';
+import { BAR_TEMPLATES, type BarTemplate } from '../bar-templates';
 import { barHooks } from '../hooks/use-announcement-bars';
 
 function cleanConfig<T extends Record<string, unknown>>(obj: T): T | undefined {
@@ -114,6 +119,23 @@ export function AnnouncementBarFormPage({ barId }: { barId?: number } = {}) {
       </SkeletonPage>
     );
   }
+
+  const applyTemplate = (t: BarTemplate) => {
+    const a = t.apply;
+    setType(a.type);
+    if (a.position) setPosition(a.position);
+    if (a.sticky !== undefined) setSticky(a.sticky);
+    if (a.backgroundColor !== undefined) setBackgroundColor(a.backgroundColor);
+    if (a.textColor !== undefined) setTextColor(a.textColor);
+    if (a.text !== undefined) setText(a.text);
+    if (a.buttonText !== undefined) setButtonText(a.buttonText);
+    if (a.expiredMessage !== undefined) setExpiredMessage(a.expiredMessage);
+    if (a.goalAmount !== undefined) setGoalAmount(a.goalAmount);
+    if (a.progressText !== undefined) setProgressText(a.progressText);
+    if (a.successText !== undefined) setSuccessText(a.successText);
+    if (!name.trim()) setName(t.label);
+    showToast(`Đã áp dụng mẫu "${t.label}"`);
+  };
 
   const validate = (): FieldError[] => {
     const errors: FieldError[] = [];
@@ -190,163 +212,216 @@ export function AnnouncementBarFormPage({ barId }: { barId?: number } = {}) {
       title={isEdit ? 'Sửa thanh thông báo' : 'Tạo thanh thông báo'}
       backAction={{ content: 'Announcement Bars', onAction: () => navigate('/announcement-bars') }}
     >
-      <BlockStack gap="400">
-        {clientErrors.length > 0 && (
-          <Banner tone="warning" title="Vui lòng kiểm tra lại các trường">
-            <ul>
-              {clientErrors.map((e) => (
-                <li key={e.field}>{e.message}</li>
-              ))}
-            </ul>
-          </Banner>
-        )}
-        {(create.isError || update.isError) && (
-          <ApiErrorBanner error={create.error ?? update.error} title="Lưu thất bại" />
-        )}
+      <Layout>
+        <Layout.Section>
+          <BlockStack gap="400">
+            <Card>
+              <BlockStack gap="300">
+                <Text as="h2" variant="headingMd">
+                  Bắt đầu nhanh với mẫu có sẵn
+                </Text>
+                <InlineGrid columns={{ xs: 1, sm: 2 }} gap="300">
+                  {BAR_TEMPLATES.map((t) => (
+                    <Box
+                      key={t.id}
+                      padding="300"
+                      background="bg-surface-secondary"
+                      borderWidth="025"
+                      borderColor="border"
+                      borderRadius="200"
+                    >
+                      <BlockStack gap="200">
+                        <Text as="h3" fontWeight="semibold">
+                          {t.label}
+                        </Text>
+                        <Text as="p" tone="subdued" variant="bodySm">
+                          {t.description}
+                        </Text>
+                        <Button onClick={() => applyTemplate(t)}>Dùng mẫu này</Button>
+                      </BlockStack>
+                    </Box>
+                  ))}
+                </InlineGrid>
+              </BlockStack>
+            </Card>
 
-        <Card>
-          <FormLayout>
-            <TextField
-              label="Tên"
-              value={name}
-              onChange={setName}
-              autoComplete="off"
-              requiredIndicator
-              error={clientErrors.find((e) => e.field === 'Tên')?.message}
-            />
-            <Select
-              label="Loại"
-              options={toOptions(BAR_TYPES, BAR_TYPE_LABELS)}
-              value={type}
-              onChange={(v) => setType(v as AnnouncementBarType)}
-            />
-            <FormLayout.Group>
-              <Select
-                label="Vị trí"
-                options={toOptions(BAR_POSITIONS, BAR_POSITION_LABELS)}
-                value={position}
-                onChange={(v) => setPosition(v as AnnouncementBarPosition)}
-              />
-              <Checkbox label="Ghim (sticky)" checked={sticky} onChange={setSticky} />
-            </FormLayout.Group>
-            <Checkbox label="Bật thanh thông báo" checked={enabled} onChange={setEnabled} />
-          </FormLayout>
-        </Card>
+            {clientErrors.length > 0 && (
+              <Banner tone="warning" title="Vui lòng kiểm tra lại các trường">
+                <ul>
+                  {clientErrors.map((e) => (
+                    <li key={e.field}>{e.message}</li>
+                  ))}
+                </ul>
+              </Banner>
+            )}
+            {(create.isError || update.isError) && (
+              <ApiErrorBanner error={create.error ?? update.error} title="Lưu thất bại" />
+            )}
 
-        <Card>
-          <BlockStack gap="200">
-            <Text as="h2" variant="headingMd">
-              Nội dung ({type})
-            </Text>
-            <FormLayout>
-              {type === 'simple' && (
-                <>
-                  <TextField label="Văn bản" value={text} onChange={setText} autoComplete="off" />
-                  <FormLayout.Group>
-                    <TextField
-                      label="Chữ trên nút"
-                      value={buttonText}
-                      onChange={setButtonText}
-                      autoComplete="off"
-                    />
-                    <TextField
-                      label="Liên kết nút (https)"
-                      value={buttonLink}
-                      onChange={setButtonLink}
-                      autoComplete="off"
-                      error={
-                        clientErrors.find((e) => e.field === 'Liên kết nút (buttonLink)')?.message
-                      }
-                    />
-                  </FormLayout.Group>
-                </>
-              )}
-              {type === 'countdown' && (
-                <>
+            <Card>
+              <FormLayout>
+                <TextField
+                  label="Tên"
+                  value={name}
+                  onChange={setName}
+                  autoComplete="off"
+                  requiredIndicator
+                  error={clientErrors.find((e) => e.field === 'Tên')?.message}
+                />
+                <Select
+                  label="Loại"
+                  options={toOptions(BAR_TYPES, BAR_TYPE_LABELS)}
+                  value={type}
+                  onChange={(v) => setType(v as AnnouncementBarType)}
+                />
+                <FormLayout.Group>
+                  <Select
+                    label="Vị trí"
+                    options={toOptions(BAR_POSITIONS, BAR_POSITION_LABELS)}
+                    value={position}
+                    onChange={(v) => setPosition(v as AnnouncementBarPosition)}
+                  />
+                  <Checkbox label="Ghim (sticky)" checked={sticky} onChange={setSticky} />
+                </FormLayout.Group>
+                <Checkbox label="Bật thanh thông báo" checked={enabled} onChange={setEnabled} />
+              </FormLayout>
+            </Card>
+
+            <Card>
+              <BlockStack gap="200">
+                <Text as="h2" variant="headingMd">
+                  Nội dung ({type})
+                </Text>
+                <FormLayout>
+                  {type === 'simple' && (
+                    <>
+                      <TextField
+                        label="Văn bản"
+                        value={text}
+                        onChange={setText}
+                        autoComplete="off"
+                      />
+                      <FormLayout.Group>
+                        <TextField
+                          label="Chữ trên nút"
+                          value={buttonText}
+                          onChange={setButtonText}
+                          autoComplete="off"
+                        />
+                        <TextField
+                          label="Liên kết nút (https)"
+                          value={buttonLink}
+                          onChange={setButtonLink}
+                          autoComplete="off"
+                          error={
+                            clientErrors.find((e) => e.field === 'Liên kết nút (buttonLink)')
+                              ?.message
+                          }
+                        />
+                      </FormLayout.Group>
+                    </>
+                  )}
+                  {type === 'countdown' && (
+                    <>
+                      <TextField
+                        label="Kết thúc (ISO-8601)"
+                        value={endDate}
+                        onChange={setEndDate}
+                        autoComplete="off"
+                      />
+                      <TextField
+                        label="Thông báo hết hạn"
+                        value={expiredMessage}
+                        onChange={setExpiredMessage}
+                        autoComplete="off"
+                      />
+                    </>
+                  )}
+                  {type === 'free_shipping_progress' && (
+                    <>
+                      <TextField
+                        label="Ngưỡng (goalAmount)"
+                        type="number"
+                        value={goalAmount}
+                        onChange={setGoalAmount}
+                        autoComplete="off"
+                      />
+                      <TextField
+                        label="Văn bản tiến trình"
+                        value={progressText}
+                        onChange={setProgressText}
+                        autoComplete="off"
+                      />
+                      <TextField
+                        label="Văn bản thành công"
+                        value={successText}
+                        onChange={setSuccessText}
+                        autoComplete="off"
+                      />
+                    </>
+                  )}
+                </FormLayout>
+              </BlockStack>
+            </Card>
+
+            <Card>
+              <FormLayout>
+                <FormLayout.Group>
                   <TextField
-                    label="Kết thúc (ISO-8601)"
-                    value={endDate}
-                    onChange={setEndDate}
+                    label="Màu nền (hex)"
+                    value={backgroundColor}
+                    onChange={setBackgroundColor}
                     autoComplete="off"
+                    placeholder="#000000"
+                    error={clientErrors.find((e) => e.field === 'Màu nền')?.message}
                   />
                   <TextField
-                    label="Thông báo hết hạn"
-                    value={expiredMessage}
-                    onChange={setExpiredMessage}
+                    label="Màu chữ (hex)"
+                    value={textColor}
+                    onChange={setTextColor}
                     autoComplete="off"
+                    placeholder="#ffffff"
+                    error={clientErrors.find((e) => e.field === 'Màu chữ')?.message}
                   />
-                </>
-              )}
-              {type === 'free_shipping_progress' && (
-                <>
-                  <TextField
-                    label="Ngưỡng (goalAmount)"
-                    type="number"
-                    value={goalAmount}
-                    onChange={setGoalAmount}
-                    autoComplete="off"
-                  />
-                  <TextField
-                    label="Văn bản tiến trình"
-                    value={progressText}
-                    onChange={setProgressText}
-                    autoComplete="off"
-                  />
-                  <TextField
-                    label="Văn bản thành công"
-                    value={successText}
-                    onChange={setSuccessText}
-                    autoComplete="off"
-                  />
-                </>
-              )}
-            </FormLayout>
+                </FormLayout.Group>
+                <Select
+                  label="Thiết bị hiển thị"
+                  options={toOptions(DEVICE_TARGETS, DEVICE_TARGET_LABELS)}
+                  value={deviceTarget}
+                  onChange={(v) => setDeviceTarget(v as DeviceTarget)}
+                />
+                <ChoiceList
+                  allowMultiple
+                  title="Trang hiển thị"
+                  choices={toOptions(PAGE_TARGETS, PAGE_TARGET_LABELS)}
+                  selected={targetPages}
+                  onChange={setTargetPages}
+                />
+              </FormLayout>
+            </Card>
+
+            <InlineStack gap="200">
+              <Button variant="primary" onClick={onSubmit} loading={isSaving}>
+                {isEdit ? 'Cập nhật' : 'Tạo'}
+              </Button>
+              <Button onClick={() => navigate('/announcement-bars')}>Hủy</Button>
+            </InlineStack>
           </BlockStack>
-        </Card>
+        </Layout.Section>
 
-        <Card>
-          <FormLayout>
-            <FormLayout.Group>
-              <TextField
-                label="Màu nền (hex)"
-                value={backgroundColor}
-                onChange={setBackgroundColor}
-                autoComplete="off"
-                placeholder="#000000"
-                error={clientErrors.find((e) => e.field === 'Màu nền')?.message}
-              />
-              <TextField
-                label="Màu chữ (hex)"
-                value={textColor}
-                onChange={setTextColor}
-                autoComplete="off"
-                placeholder="#ffffff"
-                error={clientErrors.find((e) => e.field === 'Màu chữ')?.message}
-              />
-            </FormLayout.Group>
-            <Select
-              label="Thiết bị hiển thị"
-              options={toOptions(DEVICE_TARGETS, DEVICE_TARGET_LABELS)}
-              value={deviceTarget}
-              onChange={(v) => setDeviceTarget(v as DeviceTarget)}
+        <Layout.Section variant="oneThird">
+          <div style={{ position: 'sticky', top: 'var(--p-space-400)' }}>
+            <BarPreview
+              type={type}
+              text={text}
+              buttonText={buttonText}
+              progressText={progressText}
+              backgroundColor={backgroundColor}
+              textColor={textColor}
             />
-            <ChoiceList
-              allowMultiple
-              title="Trang hiển thị"
-              choices={toOptions(PAGE_TARGETS, PAGE_TARGET_LABELS)}
-              selected={targetPages}
-              onChange={setTargetPages}
-            />
-          </FormLayout>
-        </Card>
-
-        <InlineStack gap="200">
-          <Button variant="primary" onClick={onSubmit} loading={isSaving}>
-            {isEdit ? 'Cập nhật' : 'Tạo'}
-          </Button>
-          <Button onClick={() => navigate('/announcement-bars')}>Hủy</Button>
-        </InlineStack>
-      </BlockStack>
+          </div>
+        </Layout.Section>
+      </Layout>
     </Page>
   );
 }
