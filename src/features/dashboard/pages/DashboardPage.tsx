@@ -1,11 +1,11 @@
 import { Page, Card, Text, BlockStack } from '@shopify/polaris';
-import { AppEmbedStatusBanner } from '../../../shared/ui/AppEmbedStatusBanner';
+import { DashboardOnboarding } from '../components/DashboardOnboarding';
 
 export function DashboardPage() {
   return (
     <Page title="Dashboard">
       <BlockStack gap="400">
-        <AppEmbedStatusBanner />
+        <DashboardOnboarding />
         <Card>
           <BlockStack gap="200">
             <Text as="h2" variant="headingMd">

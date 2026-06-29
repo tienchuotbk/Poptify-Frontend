@@ -41,6 +41,29 @@ if (!window.ResizeObserver) {
   window.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
 }
 
+// jsdom (env này) không cấp localStorage đầy đủ → polyfill in-memory.
+if (typeof window.localStorage?.getItem !== 'function') {
+  const store = new Map<string, string>();
+  const mock: Storage = {
+    get length() {
+      return store.size;
+    },
+    clear: () => store.clear(),
+    getItem: (k) => (store.has(k) ? (store.get(k) as string) : null),
+    key: (i) => Array.from(store.keys())[i] ?? null,
+    removeItem: (k) => {
+      store.delete(k);
+    },
+    setItem: (k, v) => {
+      store.set(k, String(v));
+    },
+  };
+  Object.defineProperty(window, 'localStorage', {
+    value: mock,
+    configurable: true,
+  });
+}
+
 // MSW lifecycle.
 beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
 afterEach(() => {

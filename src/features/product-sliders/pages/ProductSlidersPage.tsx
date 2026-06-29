@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Badge,
   Banner,
+  BlockStack,
   Button,
   Card,
   Checkbox,
@@ -13,6 +14,7 @@ import {
   SkeletonPage,
   Text,
 } from '@shopify/polaris';
+import { ExtensionStatusBanner } from '../../../shared/ui/ExtensionStatusBanner';
 import { useToast } from '../../../shared/ui/ToastProvider';
 import { sliderHooks } from '../hooks/use-product-sliders';
 
@@ -59,60 +61,63 @@ export function ProductSlidersPage() {
       title="Product Sliders"
       primaryAction={{ content: 'Tạo slider', onAction: () => navigate('/product-sliders/new') }}
     >
-      <Card padding="0">
-        {data.length === 0 ? (
-          <EmptyState
-            heading="Chưa có slider nào"
-            action={{ content: 'Tạo slider', onAction: () => navigate('/product-sliders/new') }}
-            image=""
-          >
-            <p>Tạo slider đầu tiên để hiển thị sản phẩm nổi bật.</p>
-          </EmptyState>
-        ) : (
-          <IndexTable
-            resourceName={{ singular: 'slider', plural: 'sliders' }}
-            itemCount={data.length}
-            selectable={false}
-            headings={[
-              { title: 'Tên' },
-              { title: 'Nguồn' },
-              { title: 'Bật' },
-              { title: 'Thao tác' },
-            ]}
-          >
-            {data.map((slider, index) => (
-              <IndexTable.Row id={String(slider.id)} key={slider.id} position={index}>
-                <IndexTable.Cell>
-                  <Text as="span" fontWeight="semibold">
-                    {slider.name}
-                  </Text>
-                </IndexTable.Cell>
-                <IndexTable.Cell>
-                  <Badge>{slider.sourceType}</Badge>
-                </IndexTable.Cell>
-                <IndexTable.Cell>
-                  <Checkbox
-                    label={`Bật ${slider.name}`}
-                    labelHidden
-                    checked={slider.enabled}
-                    onChange={(value) => toggle.mutate({ id: slider.id, enabled: value })}
-                  />
-                </IndexTable.Cell>
-                <IndexTable.Cell>
-                  <InlineStack gap="200">
-                    <Button onClick={() => navigate(`/product-sliders/${slider.id}/edit`)}>
-                      Sửa
-                    </Button>
-                    <Button tone="critical" onClick={() => onDelete(slider.id)}>
-                      Xóa
-                    </Button>
-                  </InlineStack>
-                </IndexTable.Cell>
-              </IndexTable.Row>
-            ))}
-          </IndexTable>
-        )}
-      </Card>
+      <BlockStack gap="400">
+        <ExtensionStatusBanner widget="sliders" />
+        <Card padding="0">
+          {data.length === 0 ? (
+            <EmptyState
+              heading="Chưa có slider nào"
+              action={{ content: 'Tạo slider', onAction: () => navigate('/product-sliders/new') }}
+              image=""
+            >
+              <p>Tạo slider đầu tiên để hiển thị sản phẩm nổi bật.</p>
+            </EmptyState>
+          ) : (
+            <IndexTable
+              resourceName={{ singular: 'slider', plural: 'sliders' }}
+              itemCount={data.length}
+              selectable={false}
+              headings={[
+                { title: 'Tên' },
+                { title: 'Nguồn' },
+                { title: 'Bật' },
+                { title: 'Thao tác' },
+              ]}
+            >
+              {data.map((slider, index) => (
+                <IndexTable.Row id={String(slider.id)} key={slider.id} position={index}>
+                  <IndexTable.Cell>
+                    <Text as="span" fontWeight="semibold">
+                      {slider.name}
+                    </Text>
+                  </IndexTable.Cell>
+                  <IndexTable.Cell>
+                    <Badge>{slider.sourceType}</Badge>
+                  </IndexTable.Cell>
+                  <IndexTable.Cell>
+                    <Checkbox
+                      label={`Bật ${slider.name}`}
+                      labelHidden
+                      checked={slider.enabled}
+                      onChange={(value) => toggle.mutate({ id: slider.id, enabled: value })}
+                    />
+                  </IndexTable.Cell>
+                  <IndexTable.Cell>
+                    <InlineStack gap="200">
+                      <Button onClick={() => navigate(`/product-sliders/${slider.id}/edit`)}>
+                        Sửa
+                      </Button>
+                      <Button tone="critical" onClick={() => onDelete(slider.id)}>
+                        Xóa
+                      </Button>
+                    </InlineStack>
+                  </IndexTable.Cell>
+                </IndexTable.Row>
+              ))}
+            </IndexTable>
+          )}
+        </Card>
+      </BlockStack>
     </Page>
   );
 }
