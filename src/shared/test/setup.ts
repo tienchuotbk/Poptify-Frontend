@@ -14,7 +14,8 @@ vi.mock('@shopify/app-bridge-react', () => {
       return fn ? fn(opts) : undefined;
     },
   };
-  return { useAppBridge: () => shopify };
+  // NavMenu render vào admin chrome (ngoài iframe) → no-op trong test (jsdom không có admin).
+  return { useAppBridge: () => shopify, NavMenu: () => null };
 });
 
 // jsdom thiếu API Polaris cần — polyfill.
