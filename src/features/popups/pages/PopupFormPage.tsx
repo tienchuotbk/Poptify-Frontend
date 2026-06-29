@@ -3,16 +3,20 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   Banner,
   BlockStack,
+  Box,
   Button,
   Card,
   Checkbox,
   ChoiceList,
   FormLayout,
+  InlineGrid,
   InlineStack,
+  Layout,
   Page,
   Select,
   SkeletonBodyText,
   SkeletonPage,
+  Text,
   TextField,
 } from '@shopify/polaris';
 import {
@@ -42,6 +46,8 @@ import {
   validateRequired,
   type FieldError,
 } from '../../../shared/validation/widget-validators';
+import { PopupPreview } from '../components/PopupPreview';
+import { POPUP_TEMPLATES, type PopupTemplate } from '../popup-templates';
 import { popupHooks } from '../hooks/use-popups';
 
 function cleanConfig<T extends Record<string, unknown>>(obj: T): T | undefined {
@@ -117,6 +123,24 @@ export function PopupFormPage({ popupId }: { popupId?: number } = {}) {
     );
   }
 
+  const applyTemplate = (t: PopupTemplate) => {
+    const a = t.apply;
+    setType(a.type);
+    if (a.triggerType) setTriggerType(a.triggerType);
+    if (a.triggerValue !== undefined) setTriggerValue(a.triggerValue);
+    if (a.frequency) setFrequency(a.frequency);
+    if (a.position) setPosition(a.position);
+    if (a.backgroundColor !== undefined) setBackgroundColor(a.backgroundColor);
+    if (a.textColor !== undefined) setTextColor(a.textColor);
+    if (a.title !== undefined) setTitle(a.title);
+    if (a.description !== undefined) setDescription(a.description);
+    if (a.couponCode !== undefined) setCouponCode(a.couponCode);
+    if (a.buttonText !== undefined) setButtonText(a.buttonText);
+    if (a.successMessage !== undefined) setSuccessMessage(a.successMessage);
+    if (!name.trim()) setName(t.label);
+    showToast(`Đã áp dụng mẫu "${t.label}"`);
+  };
+
   const validate = (): FieldError[] => {
     const errors: FieldError[] = [];
     const nameErr = validateRequired('Tên', name);
@@ -183,168 +207,220 @@ export function PopupFormPage({ popupId }: { popupId?: number } = {}) {
       title={isEdit ? 'Sửa popup' : 'Tạo popup'}
       backAction={{ content: 'Popups', onAction: () => navigate('/popups') }}
     >
-      <BlockStack gap="400">
-        {clientErrors.length > 0 && (
-          <Banner tone="warning" title="Vui lòng kiểm tra lại các trường">
-            <ul>
-              {clientErrors.map((e) => (
-                <li key={e.field}>{e.message}</li>
-              ))}
-            </ul>
-          </Banner>
-        )}
-        {(create.isError || update.isError) && (
-          <ApiErrorBanner error={serverError} title="Lưu thất bại" />
-        )}
+      <Layout>
+        <Layout.Section>
+          <BlockStack gap="400">
+            <Card>
+              <BlockStack gap="300">
+                <Text as="h2" variant="headingMd">
+                  Bắt đầu nhanh với mẫu có sẵn
+                </Text>
+                <InlineGrid columns={{ xs: 1, sm: 2 }} gap="300">
+                  {POPUP_TEMPLATES.map((t) => (
+                    <Box
+                      key={t.id}
+                      padding="300"
+                      background="bg-surface-secondary"
+                      borderWidth="025"
+                      borderColor="border"
+                      borderRadius="200"
+                    >
+                      <BlockStack gap="200">
+                        <Text as="h3" fontWeight="semibold">
+                          {t.label}
+                        </Text>
+                        <Text as="p" tone="subdued" variant="bodySm">
+                          {t.description}
+                        </Text>
+                        <Button onClick={() => applyTemplate(t)}>Dùng mẫu này</Button>
+                      </BlockStack>
+                    </Box>
+                  ))}
+                </InlineGrid>
+              </BlockStack>
+            </Card>
 
-        <Card>
-          <FormLayout>
-            <TextField
-              label="Tên"
-              value={name}
-              onChange={setName}
-              autoComplete="off"
-              requiredIndicator
-              error={clientErrors.find((e) => e.field === 'Tên')?.message}
-            />
-            <Select
-              label="Loại"
-              options={toOptions(POPUP_TYPES, POPUP_TYPE_LABELS)}
-              value={type}
-              onChange={(v) => setType(v as PopupType)}
-            />
-            <Checkbox label="Bật popup" checked={enabled} onChange={setEnabled} />
-            <TextField
-              label="Độ ưu tiên"
-              type="number"
-              value={priority}
-              onChange={setPriority}
-              autoComplete="off"
-            />
-          </FormLayout>
-        </Card>
+            {clientErrors.length > 0 && (
+              <Banner tone="warning" title="Vui lòng kiểm tra lại các trường">
+                <ul>
+                  {clientErrors.map((e) => (
+                    <li key={e.field}>{e.message}</li>
+                  ))}
+                </ul>
+              </Banner>
+            )}
+            {(create.isError || update.isError) && (
+              <ApiErrorBanner error={serverError} title="Lưu thất bại" />
+            )}
 
-        <Card>
-          <FormLayout>
-            <FormLayout.Group>
-              <Select
-                label="Kích hoạt"
-                options={toOptions(POPUP_TRIGGER_TYPES, POPUP_TRIGGER_TYPE_LABELS)}
-                value={triggerType}
-                onChange={(v) => setTriggerType(v as PopupTriggerType)}
-              />
-              <TextField
-                label="Giá trị kích hoạt"
-                value={triggerValue}
-                onChange={setTriggerValue}
-                autoComplete="off"
-                helpText='vd "5" (giây) hoặc "30" (%)'
-              />
-            </FormLayout.Group>
-            <Select
-              label="Tần suất"
-              options={toOptions(POPUP_FREQUENCIES, POPUP_FREQUENCY_LABELS)}
-              value={frequency}
-              onChange={(v) => setFrequency(v as PopupFrequency)}
-            />
-            <ChoiceList
-              allowMultiple
-              title="Trang hiển thị"
-              choices={toOptions(PAGE_TARGETS, PAGE_TARGET_LABELS)}
-              selected={targetPages}
-              onChange={setTargetPages}
-            />
-          </FormLayout>
-        </Card>
+            <Card>
+              <FormLayout>
+                <TextField
+                  label="Tên"
+                  value={name}
+                  onChange={setName}
+                  autoComplete="off"
+                  requiredIndicator
+                  error={clientErrors.find((e) => e.field === 'Tên')?.message}
+                />
+                <Select
+                  label="Loại"
+                  options={toOptions(POPUP_TYPES, POPUP_TYPE_LABELS)}
+                  value={type}
+                  onChange={(v) => setType(v as PopupType)}
+                />
+                <Checkbox label="Bật popup" checked={enabled} onChange={setEnabled} />
+                <TextField
+                  label="Độ ưu tiên"
+                  type="number"
+                  value={priority}
+                  onChange={setPriority}
+                  autoComplete="off"
+                />
+              </FormLayout>
+            </Card>
 
-        <Card>
-          <FormLayout>
-            <Select
-              label="Vị trí"
-              options={toOptions(POPUP_POSITIONS, POPUP_POSITION_LABELS)}
-              value={position}
-              onChange={(v) => setPosition(v as PopupPosition)}
-            />
-            <FormLayout.Group>
-              <TextField
-                label="Màu nền (hex)"
-                value={backgroundColor}
-                onChange={setBackgroundColor}
-                autoComplete="off"
-                placeholder="#ffffff"
-                error={clientErrors.find((e) => e.field === 'Màu nền')?.message}
-              />
-              <TextField
-                label="Màu chữ (hex)"
-                value={textColor}
-                onChange={setTextColor}
-                autoComplete="off"
-                placeholder="#000000"
-                error={clientErrors.find((e) => e.field === 'Màu chữ')?.message}
-              />
-            </FormLayout.Group>
-            <TextField
-              label="Ảnh (URL https)"
-              value={imageUrl}
-              onChange={setImageUrl}
-              autoComplete="off"
-              error={clientErrors.find((e) => e.field === 'Ảnh (imageUrl)')?.message}
-            />
-            <Checkbox
-              label="Hiện nút đóng"
-              checked={showCloseButton}
-              onChange={setShowCloseButton}
-            />
-          </FormLayout>
-        </Card>
+            <Card>
+              <FormLayout>
+                <FormLayout.Group>
+                  <Select
+                    label="Kích hoạt"
+                    options={toOptions(POPUP_TRIGGER_TYPES, POPUP_TRIGGER_TYPE_LABELS)}
+                    value={triggerType}
+                    onChange={(v) => setTriggerType(v as PopupTriggerType)}
+                  />
+                  <TextField
+                    label="Giá trị kích hoạt"
+                    value={triggerValue}
+                    onChange={setTriggerValue}
+                    autoComplete="off"
+                    helpText='vd "5" (giây) hoặc "30" (%)'
+                  />
+                </FormLayout.Group>
+                <Select
+                  label="Tần suất"
+                  options={toOptions(POPUP_FREQUENCIES, POPUP_FREQUENCY_LABELS)}
+                  value={frequency}
+                  onChange={(v) => setFrequency(v as PopupFrequency)}
+                />
+                <ChoiceList
+                  allowMultiple
+                  title="Trang hiển thị"
+                  choices={toOptions(PAGE_TARGETS, PAGE_TARGET_LABELS)}
+                  selected={targetPages}
+                  onChange={setTargetPages}
+                />
+              </FormLayout>
+            </Card>
 
-        <Card>
-          <FormLayout>
-            <TextField label="Tiêu đề" value={title} onChange={setTitle} autoComplete="off" />
-            <TextField
-              label="Mô tả"
-              value={description}
-              onChange={setDescription}
-              autoComplete="off"
-              multiline={3}
-            />
-            <TextField
-              label="Mã giảm giá"
-              value={couponCode}
-              onChange={setCouponCode}
-              autoComplete="off"
-            />
-            <FormLayout.Group>
-              <TextField
-                label="Chữ trên nút"
-                value={buttonText}
-                onChange={setButtonText}
-                autoComplete="off"
-              />
-              <TextField
-                label="Liên kết nút (https)"
-                value={buttonLink}
-                onChange={setButtonLink}
-                autoComplete="off"
-                error={clientErrors.find((e) => e.field === 'Liên kết nút (buttonLink)')?.message}
-              />
-            </FormLayout.Group>
-            <TextField
-              label="Thông báo thành công"
-              value={successMessage}
-              onChange={setSuccessMessage}
-              autoComplete="off"
-            />
-          </FormLayout>
-        </Card>
+            <Card>
+              <FormLayout>
+                <Select
+                  label="Vị trí"
+                  options={toOptions(POPUP_POSITIONS, POPUP_POSITION_LABELS)}
+                  value={position}
+                  onChange={(v) => setPosition(v as PopupPosition)}
+                />
+                <FormLayout.Group>
+                  <TextField
+                    label="Màu nền (hex)"
+                    value={backgroundColor}
+                    onChange={setBackgroundColor}
+                    autoComplete="off"
+                    placeholder="#ffffff"
+                    error={clientErrors.find((e) => e.field === 'Màu nền')?.message}
+                  />
+                  <TextField
+                    label="Màu chữ (hex)"
+                    value={textColor}
+                    onChange={setTextColor}
+                    autoComplete="off"
+                    placeholder="#000000"
+                    error={clientErrors.find((e) => e.field === 'Màu chữ')?.message}
+                  />
+                </FormLayout.Group>
+                <TextField
+                  label="Ảnh (URL https)"
+                  value={imageUrl}
+                  onChange={setImageUrl}
+                  autoComplete="off"
+                  error={clientErrors.find((e) => e.field === 'Ảnh (imageUrl)')?.message}
+                />
+                <Checkbox
+                  label="Hiện nút đóng"
+                  checked={showCloseButton}
+                  onChange={setShowCloseButton}
+                />
+              </FormLayout>
+            </Card>
 
-        <InlineStack gap="200">
-          <Button variant="primary" onClick={onSubmit} loading={isSaving}>
-            {isEdit ? 'Cập nhật' : 'Tạo'}
-          </Button>
-          <Button onClick={() => navigate('/popups')}>Hủy</Button>
-        </InlineStack>
-      </BlockStack>
+            <Card>
+              <FormLayout>
+                <TextField label="Tiêu đề" value={title} onChange={setTitle} autoComplete="off" />
+                <TextField
+                  label="Mô tả"
+                  value={description}
+                  onChange={setDescription}
+                  autoComplete="off"
+                  multiline={3}
+                />
+                <TextField
+                  label="Mã giảm giá"
+                  value={couponCode}
+                  onChange={setCouponCode}
+                  autoComplete="off"
+                />
+                <FormLayout.Group>
+                  <TextField
+                    label="Chữ trên nút"
+                    value={buttonText}
+                    onChange={setButtonText}
+                    autoComplete="off"
+                  />
+                  <TextField
+                    label="Liên kết nút (https)"
+                    value={buttonLink}
+                    onChange={setButtonLink}
+                    autoComplete="off"
+                    error={
+                      clientErrors.find((e) => e.field === 'Liên kết nút (buttonLink)')?.message
+                    }
+                  />
+                </FormLayout.Group>
+                <TextField
+                  label="Thông báo thành công"
+                  value={successMessage}
+                  onChange={setSuccessMessage}
+                  autoComplete="off"
+                />
+              </FormLayout>
+            </Card>
+
+            <InlineStack gap="200">
+              <Button variant="primary" onClick={onSubmit} loading={isSaving}>
+                {isEdit ? 'Cập nhật' : 'Tạo'}
+              </Button>
+              <Button onClick={() => navigate('/popups')}>Hủy</Button>
+            </InlineStack>
+          </BlockStack>
+        </Layout.Section>
+
+        <Layout.Section variant="oneThird">
+          <div style={{ position: 'sticky', top: 'var(--p-space-400)' }}>
+            <PopupPreview
+              title={title}
+              description={description}
+              couponCode={couponCode}
+              buttonText={buttonText}
+              backgroundColor={backgroundColor}
+              textColor={textColor}
+              imageUrl={imageUrl}
+              showCloseButton={showCloseButton}
+              position={position}
+            />
+          </div>
+        </Layout.Section>
+      </Layout>
     </Page>
   );
 }
