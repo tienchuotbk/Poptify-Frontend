@@ -126,6 +126,7 @@ export function PopupPreview(props: PopupPreviewProps) {
               {buttonText && (
                 <div
                   style={{
+                    // Nút = đảo màu popup (nền=màu chữ, chữ=màu nền) — khớp storefront.
                     marginTop: 12,
                     padding: '11px 18px',
                     background: fg,
