@@ -8,15 +8,17 @@ import { ErrorBoundary } from './shared/ui/ErrorBoundary';
 import { ToastProvider } from './shared/ui/ToastProvider';
 
 /**
- * App shell: Polaris AppProvider (i18n en) + QueryProvider + Frame/Navigation
+ * App shell: Polaris AppProvider (i18n en) + QueryProvider + Frame (cho Toast)
  * + AuthBootstrap (token-exchange gate) + Toast + ErrorBoundary.
- * Feature page render qua <Outlet/> sau khi auth sẵn sàng.
+ * Nav nằm ở sidebar Admin qua App Bridge <NavMenu> (AppNavigation) — không còn
+ * trong Frame. Feature page render qua <Outlet/> sau khi auth sẵn sàng.
  */
 export function AppLayout() {
   return (
     <AppProvider i18n={enTranslations}>
       <QueryProvider>
-        <Frame navigation={<AppNavigation />}>
+        <AppNavigation />
+        <Frame>
           <AuthBootstrap>
             <ToastProvider>
               <ErrorBoundary>
