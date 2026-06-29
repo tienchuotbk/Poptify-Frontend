@@ -17,10 +17,16 @@ import {
 } from '@shopify/polaris';
 import {
   PAGE_TARGETS,
+  PAGE_TARGET_LABELS,
   POPUP_FREQUENCIES,
+  POPUP_FREQUENCY_LABELS,
   POPUP_POSITIONS,
+  POPUP_POSITION_LABELS,
   POPUP_TRIGGER_TYPES,
+  POPUP_TRIGGER_TYPE_LABELS,
   POPUP_TYPES,
+  POPUP_TYPE_LABELS,
+  toOptions,
   type CreatePopup,
   type PageTarget,
   type PopupFrequency,
@@ -37,8 +43,6 @@ import {
   type FieldError,
 } from '../../../shared/validation/widget-validators';
 import { popupHooks } from '../hooks/use-popups';
-
-const toOptions = (values: readonly string[]) => values.map((v) => ({ label: v, value: v }));
 
 function cleanConfig<T extends Record<string, unknown>>(obj: T): T | undefined {
   const hasValue = Object.values(obj).some((v) => v !== undefined && v !== '');
@@ -205,7 +209,7 @@ export function PopupFormPage({ popupId }: { popupId?: number } = {}) {
             />
             <Select
               label="Loại"
-              options={toOptions(POPUP_TYPES)}
+              options={toOptions(POPUP_TYPES, POPUP_TYPE_LABELS)}
               value={type}
               onChange={(v) => setType(v as PopupType)}
             />
@@ -225,7 +229,7 @@ export function PopupFormPage({ popupId }: { popupId?: number } = {}) {
             <FormLayout.Group>
               <Select
                 label="Kích hoạt"
-                options={toOptions(POPUP_TRIGGER_TYPES)}
+                options={toOptions(POPUP_TRIGGER_TYPES, POPUP_TRIGGER_TYPE_LABELS)}
                 value={triggerType}
                 onChange={(v) => setTriggerType(v as PopupTriggerType)}
               />
@@ -239,14 +243,14 @@ export function PopupFormPage({ popupId }: { popupId?: number } = {}) {
             </FormLayout.Group>
             <Select
               label="Tần suất"
-              options={toOptions(POPUP_FREQUENCIES)}
+              options={toOptions(POPUP_FREQUENCIES, POPUP_FREQUENCY_LABELS)}
               value={frequency}
               onChange={(v) => setFrequency(v as PopupFrequency)}
             />
             <ChoiceList
               allowMultiple
               title="Trang hiển thị"
-              choices={PAGE_TARGETS.map((v) => ({ label: v, value: v }))}
+              choices={toOptions(PAGE_TARGETS, PAGE_TARGET_LABELS)}
               selected={targetPages}
               onChange={setTargetPages}
             />
@@ -257,7 +261,7 @@ export function PopupFormPage({ popupId }: { popupId?: number } = {}) {
           <FormLayout>
             <Select
               label="Vị trí"
-              options={toOptions(POPUP_POSITIONS)}
+              options={toOptions(POPUP_POSITIONS, POPUP_POSITION_LABELS)}
               value={position}
               onChange={(v) => setPosition(v as PopupPosition)}
             />

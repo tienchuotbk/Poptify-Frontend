@@ -91,7 +91,12 @@ describe('ProductSliderFormPage', () => {
     server.use(
       http.post('*/api/product-sliders', () =>
         HttpResponse.json(
-          { statusCode: 400, error: 'sourceType must be a valid enum value', timestamp: '', path: '/api/product-sliders' },
+          {
+            statusCode: 400,
+            error: 'sourceType must be a valid enum value',
+            timestamp: '',
+            path: '/api/product-sliders',
+          },
           { status: 400 },
         ),
       ),

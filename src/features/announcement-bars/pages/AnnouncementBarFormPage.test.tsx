@@ -54,7 +54,12 @@ describe('AnnouncementBarFormPage', () => {
     server.use(
       http.post('*/api/announcement-bars', () =>
         HttpResponse.json(
-          { statusCode: 400, error: 'type must be a valid enum value', timestamp: '', path: '/api/announcement-bars' },
+          {
+            statusCode: 400,
+            error: 'type must be a valid enum value',
+            timestamp: '',
+            path: '/api/announcement-bars',
+          },
           { status: 400 },
         ),
       ),

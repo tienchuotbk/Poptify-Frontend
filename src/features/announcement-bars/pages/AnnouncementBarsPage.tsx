@@ -14,6 +14,11 @@ import {
   SkeletonPage,
   Text,
 } from '@shopify/polaris';
+import {
+  BAR_POSITION_LABELS,
+  BAR_TYPE_LABELS,
+  type AnnouncementBarPosition,
+} from '../../../shared/types';
 import { ExtensionStatusBanner } from '../../../shared/ui/ExtensionStatusBanner';
 import { useToast } from '../../../shared/ui/ToastProvider';
 import { barHooks } from '../hooks/use-announcement-bars';
@@ -99,9 +104,12 @@ export function AnnouncementBarsPage() {
                     </Text>
                   </IndexTable.Cell>
                   <IndexTable.Cell>
-                    <Badge>{bar.type}</Badge>
+                    <Badge>{BAR_TYPE_LABELS[bar.type] ?? bar.type}</Badge>
                   </IndexTable.Cell>
-                  <IndexTable.Cell>{bar.position ?? 'top'}</IndexTable.Cell>
+                  <IndexTable.Cell>
+                    {BAR_POSITION_LABELS[(bar.position ?? 'top') as AnnouncementBarPosition] ??
+                      bar.position}
+                  </IndexTable.Cell>
                   <IndexTable.Cell>
                     <Checkbox
                       label={`Bật ${bar.name}`}
