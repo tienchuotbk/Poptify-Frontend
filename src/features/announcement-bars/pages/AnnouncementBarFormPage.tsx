@@ -18,9 +18,14 @@ import {
 } from '@shopify/polaris';
 import {
   BAR_POSITIONS,
+  BAR_POSITION_LABELS,
   BAR_TYPES,
+  BAR_TYPE_LABELS,
   DEVICE_TARGETS,
+  DEVICE_TARGET_LABELS,
   PAGE_TARGETS,
+  PAGE_TARGET_LABELS,
+  toOptions,
   type AnnouncementBarPosition,
   type AnnouncementBarType,
   type CreateAnnouncementBar,
@@ -36,8 +41,6 @@ import {
   type FieldError,
 } from '../../../shared/validation/widget-validators';
 import { barHooks } from '../hooks/use-announcement-bars';
-
-const toOptions = (values: readonly string[]) => values.map((v) => ({ label: v, value: v }));
 
 function cleanConfig<T extends Record<string, unknown>>(obj: T): T | undefined {
   return Object.values(obj).some((v) => v !== undefined && v !== '') ? obj : undefined;
@@ -213,14 +216,14 @@ export function AnnouncementBarFormPage({ barId }: { barId?: number } = {}) {
             />
             <Select
               label="Loại"
-              options={toOptions(BAR_TYPES)}
+              options={toOptions(BAR_TYPES, BAR_TYPE_LABELS)}
               value={type}
               onChange={(v) => setType(v as AnnouncementBarType)}
             />
             <FormLayout.Group>
               <Select
                 label="Vị trí"
-                options={toOptions(BAR_POSITIONS)}
+                options={toOptions(BAR_POSITIONS, BAR_POSITION_LABELS)}
                 value={position}
                 onChange={(v) => setPosition(v as AnnouncementBarPosition)}
               />
@@ -323,14 +326,14 @@ export function AnnouncementBarFormPage({ barId }: { barId?: number } = {}) {
             </FormLayout.Group>
             <Select
               label="Thiết bị hiển thị"
-              options={toOptions(DEVICE_TARGETS)}
+              options={toOptions(DEVICE_TARGETS, DEVICE_TARGET_LABELS)}
               value={deviceTarget}
               onChange={(v) => setDeviceTarget(v as DeviceTarget)}
             />
             <ChoiceList
               allowMultiple
               title="Trang hiển thị"
-              choices={PAGE_TARGETS.map((v) => ({ label: v, value: v }))}
+              choices={toOptions(PAGE_TARGETS, PAGE_TARGET_LABELS)}
               selected={targetPages}
               onChange={setTargetPages}
             />

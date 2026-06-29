@@ -19,8 +19,12 @@ import {
 } from '@shopify/polaris';
 import {
   PAGE_TARGETS,
+  PAGE_TARGET_LABELS,
   SLIDER_PLACEMENT_POSITIONS,
+  SLIDER_PLACEMENT_POSITION_LABELS,
   SLIDER_SOURCE_TYPES,
+  SLIDER_SOURCE_TYPE_LABELS,
+  toOptions,
   type CreateProductSlider,
   type PageTarget,
   type SliderPlacementPosition,
@@ -35,8 +39,6 @@ import {
   type FieldError,
 } from '../../../shared/validation/widget-validators';
 import { sliderHooks } from '../hooks/use-product-sliders';
-
-const toOptions = (values: readonly string[]) => values.map((v) => ({ label: v, value: v }));
 
 function cleanConfig<T extends Record<string, unknown>>(obj: T): T | undefined {
   return Object.values(obj).some((v) => v !== undefined && v !== '') ? obj : undefined;
@@ -64,8 +66,9 @@ export function ProductSliderFormPage({ sliderId }: { sliderId?: number } = {}) 
   const [showArrows, setShowArrows] = useState(true);
   const [showImage, setShowImage] = useState(true);
   const [showPrice, setShowPrice] = useState(true);
-  const [placementPosition, setPlacementPosition] =
-    useState<SliderPlacementPosition>('above_product_description');
+  const [placementPosition, setPlacementPosition] = useState<SliderPlacementPosition>(
+    'above_product_description',
+  );
   const [customSelector, setCustomSelector] = useState('');
   const [targetPages, setTargetPages] = useState<string[]>([]);
 
@@ -192,7 +195,7 @@ export function ProductSliderFormPage({ sliderId }: { sliderId?: number } = {}) 
             />
             <Select
               label="Nguồn sản phẩm"
-              options={toOptions(SLIDER_SOURCE_TYPES)}
+              options={toOptions(SLIDER_SOURCE_TYPES, SLIDER_SOURCE_TYPE_LABELS)}
               value={sourceType}
               onChange={(v) => setSourceType(v as SliderSourceType)}
             />
@@ -258,7 +261,7 @@ export function ProductSliderFormPage({ sliderId }: { sliderId?: number } = {}) 
           <FormLayout>
             <Select
               label="Vị trí đặt"
-              options={toOptions(SLIDER_PLACEMENT_POSITIONS)}
+              options={toOptions(SLIDER_PLACEMENT_POSITIONS, SLIDER_PLACEMENT_POSITION_LABELS)}
               value={placementPosition}
               onChange={(v) => setPlacementPosition(v as SliderPlacementPosition)}
             />
@@ -274,7 +277,7 @@ export function ProductSliderFormPage({ sliderId }: { sliderId?: number } = {}) 
             <ChoiceList
               allowMultiple
               title="Trang hiển thị"
-              choices={PAGE_TARGETS.map((v) => ({ label: v, value: v }))}
+              choices={toOptions(PAGE_TARGETS, PAGE_TARGET_LABELS)}
               selected={targetPages}
               onChange={setTargetPages}
             />

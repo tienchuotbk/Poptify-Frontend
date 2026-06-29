@@ -15,15 +15,16 @@ import {
 } from '@shopify/polaris';
 import {
   DEVICE_TARGETS,
+  DEVICE_TARGET_LABELS,
   PAGE_TARGETS,
+  PAGE_TARGET_LABELS,
+  toOptions,
   type DeviceTarget,
   type PageTarget,
 } from '../../../shared/types';
 import { ApiErrorBanner } from '../../../shared/ui/ApiErrorBanner';
 import { useToast } from '../../../shared/ui/ToastProvider';
 import { useAppSettings, useUpdateAppSettings } from '../hooks/use-app-settings';
-
-const toOptions = (values: readonly string[]) => values.map((v) => ({ label: v, value: v }));
 
 export function AppSettingsPage() {
   const { data, isLoading, isError, error, refetch } = useAppSettings();
@@ -121,13 +122,13 @@ export function AppSettingsPage() {
           <FormLayout>
             <Select
               label="Thiết bị hiển thị"
-              options={toOptions(DEVICE_TARGETS)}
+              options={toOptions(DEVICE_TARGETS, DEVICE_TARGET_LABELS)}
               value={deviceTarget}
               onChange={(v) => setDeviceTarget(v as DeviceTarget)}
             />
             <Select
               label="Trang hiển thị mặc định"
-              options={toOptions(PAGE_TARGETS)}
+              options={toOptions(PAGE_TARGETS, PAGE_TARGET_LABELS)}
               value={pageTarget}
               onChange={(v) => setPageTarget(v as PageTarget)}
             />

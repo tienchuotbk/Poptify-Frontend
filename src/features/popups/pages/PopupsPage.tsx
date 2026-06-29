@@ -14,6 +14,7 @@ import {
   SkeletonPage,
   Text,
 } from '@shopify/polaris';
+import { POPUP_TYPE_LABELS } from '../../../shared/types';
 import { ExtensionStatusBanner } from '../../../shared/ui/ExtensionStatusBanner';
 import { useToast } from '../../../shared/ui/ToastProvider';
 import { popupHooks } from '../hooks/use-popups';
@@ -92,7 +93,7 @@ export function PopupsPage() {
                     </Text>
                   </IndexTable.Cell>
                   <IndexTable.Cell>
-                    <Badge>{popup.type}</Badge>
+                    <Badge>{POPUP_TYPE_LABELS[popup.type] ?? popup.type}</Badge>
                   </IndexTable.Cell>
                   <IndexTable.Cell>
                     <Checkbox

@@ -89,8 +89,6 @@ describe('PopupFormPage', () => {
       ),
     );
     renderWithProviders(<PopupFormPage popupId={1} />);
-    await waitFor(() =>
-      expect(screen.getByLabelText('Tên')).toHaveValue('Existing popup'),
-    );
+    await waitFor(() => expect(screen.getByLabelText('Tên')).toHaveValue('Existing popup'));
   });
 });

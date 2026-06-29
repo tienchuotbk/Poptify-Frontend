@@ -14,6 +14,7 @@ import {
   SkeletonPage,
   Text,
 } from '@shopify/polaris';
+import { SLIDER_SOURCE_TYPE_LABELS } from '../../../shared/types';
 import { ExtensionStatusBanner } from '../../../shared/ui/ExtensionStatusBanner';
 import { useToast } from '../../../shared/ui/ToastProvider';
 import { sliderHooks } from '../hooks/use-product-sliders';
@@ -92,7 +93,9 @@ export function ProductSlidersPage() {
                     </Text>
                   </IndexTable.Cell>
                   <IndexTable.Cell>
-                    <Badge>{slider.sourceType}</Badge>
+                    <Badge>
+                      {SLIDER_SOURCE_TYPE_LABELS[slider.sourceType] ?? slider.sourceType}
+                    </Badge>
                   </IndexTable.Cell>
                   <IndexTable.Cell>
                     <Checkbox

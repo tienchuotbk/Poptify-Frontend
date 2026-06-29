@@ -34,7 +34,9 @@ describe('AnnouncementBarsPage (list)', () => {
       http.get('*/api/announcement-bars', () => HttpResponse.json(current)),
       http.patch('*/api/announcement-bars/1', async ({ request }) => {
         const body = (await request.json()) as { enabled?: boolean };
-        current = current.map((b) => (b.id === 1 ? { ...b, enabled: body.enabled ?? b.enabled } : b));
+        current = current.map((b) =>
+          b.id === 1 ? { ...b, enabled: body.enabled ?? b.enabled } : b,
+        );
         return HttpResponse.json(current[0]);
       }),
     );

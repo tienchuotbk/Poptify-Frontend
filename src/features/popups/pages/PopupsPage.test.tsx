@@ -34,7 +34,9 @@ describe('PopupsPage (list)', () => {
       http.get('*/api/popups', () => HttpResponse.json(current)),
       http.patch('*/api/popups/1', async ({ request }) => {
         const body = (await request.json()) as { enabled?: boolean };
-        current = current.map((p) => (p.id === 1 ? { ...p, enabled: body.enabled ?? p.enabled } : p));
+        current = current.map((p) =>
+          p.id === 1 ? { ...p, enabled: body.enabled ?? p.enabled } : p,
+        );
         return HttpResponse.json(current[0]);
       }),
     );

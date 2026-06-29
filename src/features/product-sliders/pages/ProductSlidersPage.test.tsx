@@ -34,7 +34,9 @@ describe('ProductSlidersPage (list)', () => {
       http.get('*/api/product-sliders', () => HttpResponse.json(current)),
       http.patch('*/api/product-sliders/1', async ({ request }) => {
         const body = (await request.json()) as { enabled?: boolean };
-        current = current.map((s) => (s.id === 1 ? { ...s, enabled: body.enabled ?? s.enabled } : s));
+        current = current.map((s) =>
+          s.id === 1 ? { ...s, enabled: body.enabled ?? s.enabled } : s,
+        );
         return HttpResponse.json(current[0]);
       }),
     );
