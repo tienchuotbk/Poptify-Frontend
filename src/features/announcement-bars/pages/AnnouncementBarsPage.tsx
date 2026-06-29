@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Badge,
   Banner,
+  BlockStack,
   Button,
   Card,
   Checkbox,
@@ -13,6 +14,7 @@ import {
   SkeletonPage,
   Text,
 } from '@shopify/polaris';
+import { ExtensionStatusBanner } from '../../../shared/ui/ExtensionStatusBanner';
 import { useToast } from '../../../shared/ui/ToastProvider';
 import { barHooks } from '../hooks/use-announcement-bars';
 
@@ -62,65 +64,68 @@ export function AnnouncementBarsPage() {
         onAction: () => navigate('/announcement-bars/new'),
       }}
     >
-      <Card padding="0">
-        {data.length === 0 ? (
-          <EmptyState
-            heading="Chưa có thanh thông báo nào"
-            action={{
-              content: 'Tạo thanh thông báo',
-              onAction: () => navigate('/announcement-bars/new'),
-            }}
-            image=""
-          >
-            <p>Tạo thanh thông báo đầu tiên (free shipping, countdown, …).</p>
-          </EmptyState>
-        ) : (
-          <IndexTable
-            resourceName={{ singular: 'thanh thông báo', plural: 'thanh thông báo' }}
-            itemCount={data.length}
-            selectable={false}
-            headings={[
-              { title: 'Tên' },
-              { title: 'Loại' },
-              { title: 'Vị trí' },
-              { title: 'Bật' },
-              { title: 'Thao tác' },
-            ]}
-          >
-            {data.map((bar, index) => (
-              <IndexTable.Row id={String(bar.id)} key={bar.id} position={index}>
-                <IndexTable.Cell>
-                  <Text as="span" fontWeight="semibold">
-                    {bar.name}
-                  </Text>
-                </IndexTable.Cell>
-                <IndexTable.Cell>
-                  <Badge>{bar.type}</Badge>
-                </IndexTable.Cell>
-                <IndexTable.Cell>{bar.position ?? 'top'}</IndexTable.Cell>
-                <IndexTable.Cell>
-                  <Checkbox
-                    label={`Bật ${bar.name}`}
-                    labelHidden
-                    checked={bar.enabled}
-                    onChange={(value) => toggle.mutate({ id: bar.id, enabled: value })}
-                  />
-                </IndexTable.Cell>
-                <IndexTable.Cell>
-                  <InlineStack gap="200">
-                    <Button onClick={() => navigate(`/announcement-bars/${bar.id}/edit`)}>
-                      Sửa
-                    </Button>
-                    <Button tone="critical" onClick={() => onDelete(bar.id)}>
-                      Xóa
-                    </Button>
-                  </InlineStack>
-                </IndexTable.Cell>
-              </IndexTable.Row>
-            ))}
-          </IndexTable>
-        )}
-      </Card>
+      <BlockStack gap="400">
+        <ExtensionStatusBanner widget="bars" />
+        <Card padding="0">
+          {data.length === 0 ? (
+            <EmptyState
+              heading="Chưa có thanh thông báo nào"
+              action={{
+                content: 'Tạo thanh thông báo',
+                onAction: () => navigate('/announcement-bars/new'),
+              }}
+              image=""
+            >
+              <p>Tạo thanh thông báo đầu tiên (free shipping, countdown, …).</p>
+            </EmptyState>
+          ) : (
+            <IndexTable
+              resourceName={{ singular: 'thanh thông báo', plural: 'thanh thông báo' }}
+              itemCount={data.length}
+              selectable={false}
+              headings={[
+                { title: 'Tên' },
+                { title: 'Loại' },
+                { title: 'Vị trí' },
+                { title: 'Bật' },
+                { title: 'Thao tác' },
+              ]}
+            >
+              {data.map((bar, index) => (
+                <IndexTable.Row id={String(bar.id)} key={bar.id} position={index}>
+                  <IndexTable.Cell>
+                    <Text as="span" fontWeight="semibold">
+                      {bar.name}
+                    </Text>
+                  </IndexTable.Cell>
+                  <IndexTable.Cell>
+                    <Badge>{bar.type}</Badge>
+                  </IndexTable.Cell>
+                  <IndexTable.Cell>{bar.position ?? 'top'}</IndexTable.Cell>
+                  <IndexTable.Cell>
+                    <Checkbox
+                      label={`Bật ${bar.name}`}
+                      labelHidden
+                      checked={bar.enabled}
+                      onChange={(value) => toggle.mutate({ id: bar.id, enabled: value })}
+                    />
+                  </IndexTable.Cell>
+                  <IndexTable.Cell>
+                    <InlineStack gap="200">
+                      <Button onClick={() => navigate(`/announcement-bars/${bar.id}/edit`)}>
+                        Sửa
+                      </Button>
+                      <Button tone="critical" onClick={() => onDelete(bar.id)}>
+                        Xóa
+                      </Button>
+                    </InlineStack>
+                  </IndexTable.Cell>
+                </IndexTable.Row>
+              ))}
+            </IndexTable>
+          )}
+        </Card>
+      </BlockStack>
     </Page>
   );
 }
