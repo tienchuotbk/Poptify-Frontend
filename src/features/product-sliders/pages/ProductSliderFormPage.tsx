@@ -11,7 +11,6 @@ import {
   FormLayout,
   InlineGrid,
   InlineStack,
-  Layout,
   Page,
   Select,
   SkeletonBodyText,
@@ -34,6 +33,7 @@ import {
   type SliderSourceType,
 } from '../../../shared/types';
 import { ApiErrorBanner } from '../../../shared/ui/ApiErrorBanner';
+import { FormPreviewLayout } from '../../../shared/ui/FormPreviewLayout';
 import { useToast } from '../../../shared/ui/ToastProvider';
 import { useResourcePicker } from '../../../shared/app-bridge/resource-picker';
 import {
@@ -187,8 +187,16 @@ export function ProductSliderFormPage({ sliderId }: { sliderId?: number } = {}) 
       title={isEdit ? 'Sửa slider' : 'Tạo slider'}
       backAction={{ content: 'Product Sliders', onAction: () => navigate('/product-sliders') }}
     >
-      <Layout>
-        <Layout.Section>
+      <FormPreviewLayout
+        preview={
+          <SliderPreview
+            desktopItems={desktopItems}
+            showArrows={showArrows}
+            showImage={showImage}
+            showPrice={showPrice}
+          />
+        }
+        form={
           <BlockStack gap="400">
             <Card>
               <BlockStack gap="300">
@@ -341,19 +349,8 @@ export function ProductSliderFormPage({ sliderId }: { sliderId?: number } = {}) 
               <Button onClick={() => navigate('/product-sliders')}>Hủy</Button>
             </InlineStack>
           </BlockStack>
-        </Layout.Section>
-
-        <Layout.Section variant="oneThird">
-          <div style={{ position: 'sticky', top: 'var(--p-space-400)' }}>
-            <SliderPreview
-              desktopItems={desktopItems}
-              showArrows={showArrows}
-              showImage={showImage}
-              showPrice={showPrice}
-            />
-          </div>
-        </Layout.Section>
-      </Layout>
+        }
+      />
     </Page>
   );
 }

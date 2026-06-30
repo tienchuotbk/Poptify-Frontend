@@ -1,0 +1,29 @@
+/*
+ * Bố cục form + preview hai cột. Dùng CSS Grid (KHÔNG dùng Polaris <Layout>) vì
+ * Polaris Layout là flex với align-items:flex-start → cột preview cao bằng đúng
+ * nội dung của nó, nên position:sticky không có "đường ray" để dính (cuộn là mất).
+ * Với grid, ô của cột preview cao bằng cả hàng (= chiều cao form) → sticky chạy đúng.
+ */
+.poptify-fp {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--p-space-500, 20px);
+  align-items: start;
+}
+
+@media (min-width: 48em) {
+  .poptify-fp {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
+
+.poptify-fp__main {
+  min-width: 0;
+}
+
+.poptify-fp__aside {
+  min-width: 0;
+  position: sticky;
+  top: var(--p-space-400, 16px);
+  align-self: start;
+}
