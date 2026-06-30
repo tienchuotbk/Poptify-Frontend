@@ -37,6 +37,8 @@ import {
 import { ApiErrorBanner } from '../../../shared/ui/ApiErrorBanner';
 import { ColorField } from '../../../shared/ui/ColorField';
 import { FormPreviewLayout } from '../../../shared/ui/FormPreviewLayout';
+import { FormSaveBar } from '../../../shared/ui/FormSaveBar';
+import { useUnsavedChanges } from '../../../shared/ui/use-unsaved-changes';
 import { useToast } from '../../../shared/ui/ToastProvider';
 import {
   validateHexOptional,
@@ -88,6 +90,53 @@ export function AnnouncementBarFormPage({ barId }: { barId?: number } = {}) {
 
   const [clientErrors, setClientErrors] = useState<FieldError[]>([]);
 
+  const values = {
+    name,
+    type,
+    enabled,
+    position,
+    sticky,
+    text,
+    buttonText,
+    buttonLink,
+    endDate,
+    expiredMessage,
+    goalAmount,
+    progressText,
+    successText,
+    backgroundColor,
+    textColor,
+    deviceTarget,
+    targetPages,
+  };
+  type BarFormValues = typeof values;
+  const { dirty, baseline, requestRebaseline, reset } = useUnsavedChanges(values);
+
+  const applyValues = (v: BarFormValues) => {
+    setName(v.name);
+    setType(v.type);
+    setEnabled(v.enabled);
+    setPosition(v.position);
+    setSticky(v.sticky);
+    setText(v.text);
+    setButtonText(v.buttonText);
+    setButtonLink(v.buttonLink);
+    setEndDate(v.endDate);
+    setExpiredMessage(v.expiredMessage);
+    setGoalAmount(v.goalAmount);
+    setProgressText(v.progressText);
+    setSuccessText(v.successText);
+    setBackgroundColor(v.backgroundColor);
+    setTextColor(v.textColor);
+    setDeviceTarget(v.deviceTarget);
+    setTargetPages(v.targetPages);
+  };
+
+  const onDiscard = () => {
+    applyValues(baseline.current);
+    setClientErrors([]);
+  };
+
   useEffect(() => {
     const b = detail.data;
     if (b) {
@@ -108,7 +157,9 @@ export function AnnouncementBarFormPage({ barId }: { barId?: number } = {}) {
       setTextColor(b.styleConfig?.textColor ?? '');
       setDeviceTarget(b.visibilityRules?.deviceTarget ?? 'all');
       setTargetPages(b.visibilityRules?.targetPages ?? []);
+      requestRebaseline();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail.data]);
 
   if (isEdit && detail.isLoading) {
@@ -194,6 +245,7 @@ export function AnnouncementBarFormPage({ barId }: { barId?: number } = {}) {
     };
 
     const onSuccess = () => {
+      reset(); // dirty về false trước khi điều hướng → save bar không cảnh báo nhầm
       showToast(isEdit ? 'Đã cập nhật thanh thông báo' : 'Đã tạo thanh thông báo');
       navigate('/announcement-bars');
     };
@@ -213,6 +265,13 @@ export function AnnouncementBarFormPage({ barId }: { barId?: number } = {}) {
       title={isEdit ? 'Sửa thanh thông báo' : 'Tạo thanh thông báo'}
       backAction={{ content: 'Announcement Bars', onAction: () => navigate('/announcement-bars') }}
     >
+      <FormSaveBar
+        id="bar-save-bar"
+        open={dirty}
+        saving={isSaving}
+        onSave={onSubmit}
+        onDiscard={onDiscard}
+      />
       <FormPreviewLayout
         preview={
           <BarPreview

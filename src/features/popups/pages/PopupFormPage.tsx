@@ -40,6 +40,8 @@ import {
 import { ApiErrorBanner } from '../../../shared/ui/ApiErrorBanner';
 import { ColorField } from '../../../shared/ui/ColorField';
 import { FormPreviewLayout } from '../../../shared/ui/FormPreviewLayout';
+import { FormSaveBar } from '../../../shared/ui/FormSaveBar';
+import { useUnsavedChanges } from '../../../shared/ui/use-unsaved-changes';
 import { useToast } from '../../../shared/ui/ToastProvider';
 import {
   validateHexOptional,
@@ -89,6 +91,57 @@ export function PopupFormPage({ popupId }: { popupId?: number } = {}) {
 
   const [clientErrors, setClientErrors] = useState<FieldError[]>([]);
 
+  const values = {
+    name,
+    type,
+    enabled,
+    priority,
+    triggerType,
+    triggerValue,
+    frequency,
+    targetPages,
+    position,
+    backgroundColor,
+    textColor,
+    imageUrl,
+    showCloseButton,
+    title,
+    description,
+    couponCode,
+    buttonText,
+    buttonLink,
+    successMessage,
+  };
+  type PopupFormValues = typeof values;
+  const { dirty, baseline, requestRebaseline, reset } = useUnsavedChanges(values);
+
+  const applyValues = (v: PopupFormValues) => {
+    setName(v.name);
+    setType(v.type);
+    setEnabled(v.enabled);
+    setPriority(v.priority);
+    setTriggerType(v.triggerType);
+    setTriggerValue(v.triggerValue);
+    setFrequency(v.frequency);
+    setTargetPages(v.targetPages);
+    setPosition(v.position);
+    setBackgroundColor(v.backgroundColor);
+    setTextColor(v.textColor);
+    setImageUrl(v.imageUrl);
+    setShowCloseButton(v.showCloseButton);
+    setTitle(v.title);
+    setDescription(v.description);
+    setCouponCode(v.couponCode);
+    setButtonText(v.buttonText);
+    setButtonLink(v.buttonLink);
+    setSuccessMessage(v.successMessage);
+  };
+
+  const onDiscard = () => {
+    applyValues(baseline.current);
+    setClientErrors([]);
+  };
+
   useEffect(() => {
     const p = detail.data;
     if (p) {
@@ -111,7 +164,9 @@ export function PopupFormPage({ popupId }: { popupId?: number } = {}) {
       setButtonText(p.contentConfig?.buttonText ?? '');
       setButtonLink(p.contentConfig?.buttonLink ?? '');
       setSuccessMessage(p.contentConfig?.successMessage ?? '');
+      requestRebaseline();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail.data]);
 
   if (isEdit && detail.isLoading) {
@@ -188,6 +243,7 @@ export function PopupFormPage({ popupId }: { popupId?: number } = {}) {
     };
 
     const onSuccess = () => {
+      reset(); // dirty về false trước khi điều hướng → save bar không cảnh báo nhầm
       showToast(isEdit ? 'Đã cập nhật popup' : 'Đã tạo popup');
       navigate('/popups');
     };
@@ -208,6 +264,13 @@ export function PopupFormPage({ popupId }: { popupId?: number } = {}) {
       title={isEdit ? 'Sửa popup' : 'Tạo popup'}
       backAction={{ content: 'Popups', onAction: () => navigate('/popups') }}
     >
+      <FormSaveBar
+        id="popup-save-bar"
+        open={dirty}
+        saving={isSaving}
+        onSave={onSubmit}
+        onDiscard={onDiscard}
+      />
       <FormPreviewLayout
         preview={
           <PopupPreview
