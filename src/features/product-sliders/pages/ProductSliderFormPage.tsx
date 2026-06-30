@@ -34,6 +34,8 @@ import {
 } from '../../../shared/types';
 import { ApiErrorBanner } from '../../../shared/ui/ApiErrorBanner';
 import { FormPreviewLayout } from '../../../shared/ui/FormPreviewLayout';
+import { FormSaveBar } from '../../../shared/ui/FormSaveBar';
+import { useUnsavedChanges } from '../../../shared/ui/use-unsaved-changes';
 import { useToast } from '../../../shared/ui/ToastProvider';
 import { useResourcePicker } from '../../../shared/app-bridge/resource-picker';
 import {
@@ -79,6 +81,45 @@ export function ProductSliderFormPage({ sliderId }: { sliderId?: number } = {}) 
 
   const [clientErrors, setClientErrors] = useState<FieldError[]>([]);
 
+  const values = {
+    name,
+    sourceType,
+    enabled,
+    productHandles,
+    collectionHandle,
+    desktopItems,
+    autoplay,
+    showArrows,
+    showImage,
+    showPrice,
+    placementPosition,
+    customSelector,
+    targetPages,
+  };
+  type SliderFormValues = typeof values;
+  const { dirty, baseline, requestRebaseline, reset } = useUnsavedChanges(values);
+
+  const applyValues = (v: SliderFormValues) => {
+    setName(v.name);
+    setSourceType(v.sourceType);
+    setEnabled(v.enabled);
+    setProductHandles(v.productHandles);
+    setCollectionHandle(v.collectionHandle);
+    setDesktopItems(v.desktopItems);
+    setAutoplay(v.autoplay);
+    setShowArrows(v.showArrows);
+    setShowImage(v.showImage);
+    setShowPrice(v.showPrice);
+    setPlacementPosition(v.placementPosition);
+    setCustomSelector(v.customSelector);
+    setTargetPages(v.targetPages);
+  };
+
+  const onDiscard = () => {
+    applyValues(baseline.current);
+    setClientErrors([]);
+  };
+
   useEffect(() => {
     const s = detail.data;
     if (s) {
@@ -95,7 +136,9 @@ export function ProductSliderFormPage({ sliderId }: { sliderId?: number } = {}) 
       setPlacementPosition(s.placementConfig?.placementPosition ?? 'above_product_description');
       setCustomSelector(s.placementConfig?.customSelector ?? '');
       setTargetPages(s.placementConfig?.targetPages ?? []);
+      requestRebaseline();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail.data]);
 
   if (isEdit && detail.isLoading) {
@@ -168,6 +211,7 @@ export function ProductSliderFormPage({ sliderId }: { sliderId?: number } = {}) 
     };
 
     const onSuccess = () => {
+      reset(); // dirty về false trước khi điều hướng → save bar không cảnh báo nhầm
       showToast(isEdit ? 'Đã cập nhật slider' : 'Đã tạo slider');
       navigate('/product-sliders');
     };
@@ -187,6 +231,13 @@ export function ProductSliderFormPage({ sliderId }: { sliderId?: number } = {}) 
       title={isEdit ? 'Sửa slider' : 'Tạo slider'}
       backAction={{ content: 'Product Sliders', onAction: () => navigate('/product-sliders') }}
     >
+      <FormSaveBar
+        id="slider-save-bar"
+        open={dirty}
+        saving={isSaving}
+        onSave={onSubmit}
+        onDiscard={onDiscard}
+      />
       <FormPreviewLayout
         preview={
           <SliderPreview
