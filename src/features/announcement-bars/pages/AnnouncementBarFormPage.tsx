@@ -11,7 +11,6 @@ import {
   FormLayout,
   InlineGrid,
   InlineStack,
-  Layout,
   Page,
   Select,
   SkeletonBodyText,
@@ -36,6 +35,8 @@ import {
   type PageTarget,
 } from '../../../shared/types';
 import { ApiErrorBanner } from '../../../shared/ui/ApiErrorBanner';
+import { ColorField } from '../../../shared/ui/ColorField';
+import { FormPreviewLayout } from '../../../shared/ui/FormPreviewLayout';
 import { useToast } from '../../../shared/ui/ToastProvider';
 import {
   validateHexOptional,
@@ -212,8 +213,18 @@ export function AnnouncementBarFormPage({ barId }: { barId?: number } = {}) {
       title={isEdit ? 'Sửa thanh thông báo' : 'Tạo thanh thông báo'}
       backAction={{ content: 'Announcement Bars', onAction: () => navigate('/announcement-bars') }}
     >
-      <Layout>
-        <Layout.Section>
+      <FormPreviewLayout
+        preview={
+          <BarPreview
+            type={type}
+            text={text}
+            buttonText={buttonText}
+            progressText={progressText}
+            backgroundColor={backgroundColor}
+            textColor={textColor}
+          />
+        }
+        form={
           <BlockStack gap="400">
             <Card>
               <BlockStack gap="300">
@@ -367,19 +378,17 @@ export function AnnouncementBarFormPage({ barId }: { barId?: number } = {}) {
             <Card>
               <FormLayout>
                 <FormLayout.Group>
-                  <TextField
-                    label="Màu nền (hex)"
+                  <ColorField
+                    label="Màu nền"
                     value={backgroundColor}
                     onChange={setBackgroundColor}
-                    autoComplete="off"
                     placeholder="#000000"
                     error={clientErrors.find((e) => e.field === 'Màu nền')?.message}
                   />
-                  <TextField
-                    label="Màu chữ (hex)"
+                  <ColorField
+                    label="Màu chữ"
                     value={textColor}
                     onChange={setTextColor}
-                    autoComplete="off"
                     placeholder="#ffffff"
                     error={clientErrors.find((e) => e.field === 'Màu chữ')?.message}
                   />
@@ -407,21 +416,8 @@ export function AnnouncementBarFormPage({ barId }: { barId?: number } = {}) {
               <Button onClick={() => navigate('/announcement-bars')}>Hủy</Button>
             </InlineStack>
           </BlockStack>
-        </Layout.Section>
-
-        <Layout.Section variant="oneThird">
-          <div style={{ position: 'sticky', top: 'var(--p-space-400)' }}>
-            <BarPreview
-              type={type}
-              text={text}
-              buttonText={buttonText}
-              progressText={progressText}
-              backgroundColor={backgroundColor}
-              textColor={textColor}
-            />
-          </div>
-        </Layout.Section>
-      </Layout>
+        }
+      />
     </Page>
   );
 }

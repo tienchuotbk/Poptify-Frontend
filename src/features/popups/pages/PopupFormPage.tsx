@@ -11,7 +11,6 @@ import {
   FormLayout,
   InlineGrid,
   InlineStack,
-  Layout,
   Page,
   Select,
   SkeletonBodyText,
@@ -39,6 +38,8 @@ import {
   type PopupType,
 } from '../../../shared/types';
 import { ApiErrorBanner } from '../../../shared/ui/ApiErrorBanner';
+import { ColorField } from '../../../shared/ui/ColorField';
+import { FormPreviewLayout } from '../../../shared/ui/FormPreviewLayout';
 import { useToast } from '../../../shared/ui/ToastProvider';
 import {
   validateHexOptional,
@@ -207,8 +208,21 @@ export function PopupFormPage({ popupId }: { popupId?: number } = {}) {
       title={isEdit ? 'Sửa popup' : 'Tạo popup'}
       backAction={{ content: 'Popups', onAction: () => navigate('/popups') }}
     >
-      <Layout>
-        <Layout.Section>
+      <FormPreviewLayout
+        preview={
+          <PopupPreview
+            title={title}
+            description={description}
+            couponCode={couponCode}
+            buttonText={buttonText}
+            backgroundColor={backgroundColor}
+            textColor={textColor}
+            imageUrl={imageUrl}
+            showCloseButton={showCloseButton}
+            position={position}
+          />
+        }
+        form={
           <BlockStack gap="400">
             <Card>
               <BlockStack gap="300">
@@ -322,19 +336,17 @@ export function PopupFormPage({ popupId }: { popupId?: number } = {}) {
                   onChange={(v) => setPosition(v as PopupPosition)}
                 />
                 <FormLayout.Group>
-                  <TextField
-                    label="Màu nền (hex)"
+                  <ColorField
+                    label="Màu nền"
                     value={backgroundColor}
                     onChange={setBackgroundColor}
-                    autoComplete="off"
                     placeholder="#ffffff"
                     error={clientErrors.find((e) => e.field === 'Màu nền')?.message}
                   />
-                  <TextField
-                    label="Màu chữ (hex)"
+                  <ColorField
+                    label="Màu chữ"
                     value={textColor}
                     onChange={setTextColor}
-                    autoComplete="off"
                     placeholder="#000000"
                     error={clientErrors.find((e) => e.field === 'Màu chữ')?.message}
                   />
@@ -403,24 +415,8 @@ export function PopupFormPage({ popupId }: { popupId?: number } = {}) {
               <Button onClick={() => navigate('/popups')}>Hủy</Button>
             </InlineStack>
           </BlockStack>
-        </Layout.Section>
-
-        <Layout.Section variant="oneThird">
-          <div style={{ position: 'sticky', top: 'var(--p-space-400)' }}>
-            <PopupPreview
-              title={title}
-              description={description}
-              couponCode={couponCode}
-              buttonText={buttonText}
-              backgroundColor={backgroundColor}
-              textColor={textColor}
-              imageUrl={imageUrl}
-              showCloseButton={showCloseButton}
-              position={position}
-            />
-          </div>
-        </Layout.Section>
-      </Layout>
+        }
+      />
     </Page>
   );
 }
